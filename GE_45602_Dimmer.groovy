@@ -66,6 +66,10 @@ metadata {
 		controlTile("levelSliderControl", "device.level", "slider", height: 1, width: 3, inactiveLabel: false) {
 			state "level", action:"switch level.setLevel"
 		}
+		standardTile("indicator", "device.loadStatus", inactiveLabel: false, decoration: "flat") {
+			state "when off", action:"indicator.loadWhenOn", icon:"st.indicators.lit-when-off"
+			state "when on", action:"indicator.loadWhenOff", icon:"st.indicators.lit-when-on"
+		}
 
 		main(["switch"])
 		details(["switch", "refresh", "indicator", "levelSliderControl"])
@@ -168,6 +172,13 @@ def zwaveEvent(physicalgraph.zwave.commands.configurationv1.ConfigurationReport 
 	[name: "indicatorStatus", value: value, display: false]
 }
 
+// Define load sense here
+
+def zwaveEvent(physicalgraph.zwave.commands.configurationv1.ConfigurationReport cmd) {
+	def value = "when off"
+	if (cmd.configurationValue[0] == 1) {value = "when on"}
+	[name: "loadStatus", value: value, display: false]
+
 def createEvent(physicalgraph.zwave.Command cmd,  Map map) {
 	// Handles any Z-Wave commands we aren't interested in
 	log.debug "UNHANDLED COMMAND $cmd"
@@ -223,7 +234,18 @@ def invertSwitch(invert=true) {
 	else {
 		zwave.configurationV1.configurationSet(configurationValue: [0], parameterNumber: 4, size: 1).format()
 	}
-// New code starts here
+// Load sensing actions
+
+def loadWhenOn() {
+	sendEvent(name: "loadStatus", value: "when on", display: false)
+	zwave.configurationV1.configurationSet(configurationValue: [1], parameterNumber: 29, size: 1).format()
+}
+
+def loadWhenOff() {
+	sendEvent(name: "loadStatus", value: "when off", display: false)
+	zwave.configurationV1.configurationSet(configurationValue: [0], parameterNumber: 29, size: 1).format()
+}
+
 
 def invertLoadSense(invert=true) {
 	if (invert) {
