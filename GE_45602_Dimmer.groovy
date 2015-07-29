@@ -1,5 +1,5 @@
 /**
- *  Copyright 2015 SmartThings
+ *  Copyright 2015 David Lounsbury
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -12,9 +12,10 @@
  *
  */
  
- /** This code is based on the generic Dimmer Switch code from the SmartThings IDE, modified to 
- * add load sensing for the GE Switch Module.
- */
+ /** 
+  * This code is based on the generic Dimmer Switch code from the SmartThings IDE, modified to 
+  * add load sensing for the GE Switch Module.
+  */
  
 metadata {
 	definition (name: "Dimmer Switch", namespace: "Technodad", author: "David Lounsbury") {
@@ -222,5 +223,15 @@ def invertSwitch(invert=true) {
 	else {
 		zwave.configurationV1.configurationSet(configurationValue: [0], parameterNumber: 4, size: 1).format()
 	}
+// New code starts here
+
+def invertLoadSense(invert=true) {
+	if (invert) {
+		zwave.configurationV1.configurationSet(configurationValue: [1], parameterNumber: 29, size: 1).format()
+	}
+	else {
+		zwave.configurationV1.configurationSet(configurationValue: [0], parameterNumber: 29, size: 1).format()
+	}
+
 }
 
