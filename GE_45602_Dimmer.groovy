@@ -21,7 +21,6 @@ metadata {
 	definition (name: "Dimmer Switch", namespace: "Technodad", author: "David Lounsbury") {
 		capability "Switch Level"
 		capability "Actuator"
-		capability "Indicator"
 		capability "Switch"
 		capability "Polling"
 		capability "Refresh"
@@ -54,11 +53,6 @@ metadata {
 			state "off", label:'${name}', action:"switch.on", icon:"st.switches.switch.off", backgroundColor:"#ffffff", nextState:"turningOn"
 			state "turningOn", label:'${name}', action:"switch.off", icon:"st.switches.switch.on", backgroundColor:"#79b821", nextState:"turningOff"
 			state "turningOff", label:'${name}', action:"switch.on", icon:"st.switches.switch.off", backgroundColor:"#ffffff", nextState:"turningOn"
-		}
-		standardTile("indicator", "device.indicatorStatus", inactiveLabel: false, decoration: "flat") {
-			state "when off", action:"indicator.indicatorWhenOn", icon:"st.indicators.lit-when-off"
-			state "when on", action:"indicator.indicatorNever", icon:"st.indicators.lit-when-on"
-			state "never", action:"indicator.indicatorWhenOff", icon:"st.indicators.never-lit"
 		}
 		standardTile("refresh", "device.switch", inactiveLabel: false, decoration: "flat") {
 			state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
@@ -165,12 +159,6 @@ def doCreateEvent(physicalgraph.zwave.Command cmd, Map item1) {
 	result
 }
 
-def zwaveEvent(physicalgraph.zwave.commands.configurationv1.ConfigurationReport cmd) {
-	def value = "when off"
-	if (cmd.configurationValue[0] == 1) {value = "when on"}
-	if (cmd.configurationValue[0] == 2) {value = "never"}
-	[name: "indicatorStatus", value: value, display: false]
-}
 
 // Define load sense here
 
@@ -212,20 +200,6 @@ def refresh() {
 	zwave.switchMultilevelV1.switchMultilevelGet().format()
 }
 
-def indicatorWhenOn() {
-	sendEvent(name: "indicatorStatus", value: "when on", display: false)
-	zwave.configurationV1.configurationSet(configurationValue: [1], parameterNumber: 3, size: 1).format()
-}
-
-def indicatorWhenOff() {
-	sendEvent(name: "indicatorStatus", value: "when off", display: false)
-	zwave.configurationV1.configurationSet(configurationValue: [0], parameterNumber: 3, size: 1).format()
-}
-
-def indicatorNever() {
-	sendEvent(name: "indicatorStatus", value: "never", display: false)
-	zwave.configurationV1.configurationSet(configurationValue: [2], parameterNumber: 3, size: 1).format()
-}
 
 def invertSwitch(invert=true) {
 	if (invert) {
