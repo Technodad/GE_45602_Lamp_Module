@@ -14,7 +14,7 @@
  
  /** 
   * This code is based on the generic Dimmer Switch code from the SmartThings IDE, modified to 
-  * add load sensing for the GE Switch Module.
+  * add load sensing for the GE Switch Module. The master is stored in Technodad's Github repository.
   */
  
 metadata {
